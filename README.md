@@ -1,2 +1,3 @@
-# QuadraticEquation
+﻿# QuadraticEquation
+
 Решение квадратного уравнения
