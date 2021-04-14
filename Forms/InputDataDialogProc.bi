@@ -1,7 +1,7 @@
 #ifndef INPUTDATADIALOGPROC_BI
 #define INPUTDATADIALOGPROC_BI
 
-#include "windows.bi"
+#include once "windows.bi"
 
 Declare Function InputDataDialogProc( _
 	ByVal hwndDlg As HWND, _

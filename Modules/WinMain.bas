@@ -50,7 +50,7 @@ Function wWinMain( _
 	)
 	If DialogBoxParamResult = -1 Then
 		DisplayError(GetLastError(), DIALOGBOXPARAM_ERRORSTRING)
-		Return 1
+		Return 2
 	End If
 	
 	Return 0

@@ -1,11 +1,39 @@
-#include "InputDataDialogProc.bi"
-#include "win\shlwapi.bi"
-' #include "CompoundInterest.bi"
-#include "DisplayError.bi"
-' #include "OutputDataDialogProc.bi"
-#include "Resources.RH"
+#include once "InputDataDialogProc.bi"
+#include once "win\ole2.bi"
+#include once "win\oleauto.bi"
+#include once "DisplayError.bi"
+#include once "Resources.RH"
+#include once "crt.bi"
 
 Const DIALOGBOXPARAM_ERRORSTRING = __TEXT("Failed to show OutputDataDialog")
+Const CONVERT_ERRORSTRING = __TEXT("Failed to convert String to Double")
+
+Function GetDlgItemDoubletW( _
+		ByVal hwndDlg As HWND, _
+		ByVal resID As ULONG _
+	)As Double
+	
+	Dim wszValue As WString * 1024 = Any
+	GetDlgItemTextW( _
+		hwndDlg, _
+		resID, _
+		@wszValue, _
+		1023 _
+	)
+	Dim Value As Double = Any
+	Dim hr As HRESULT = VarR8FromStr( _
+		@wszValue, _
+		0, _
+		0, _
+		@Value _
+	)
+	If FAILED(hr) Then
+		Return 0.0
+	End If
+	
+	Return Value
+	
+End Function
 
 Function InputDataDialogProc( _
 		ByVal hwndDlg As HWND, _
@@ -17,129 +45,82 @@ Function InputDataDialogProc( _
 	Select Case uMsg
 		
 		Case WM_INITDIALOG
-			
+			Dim hInst As HINSTANCE = GetModuleHandle(NULL)
+			Dim hIcon As HICON = LoadIcon(hInst, CPtr(LPCTSTR, IDI_MAIN))
+			SendMessage(hwndDlg, WM_SETICON, ICON_BIG, Cast(LPARAM, hIcon))
 			
 		Case WM_COMMAND
 			Select Case LOWORD(wParam)
 				
 				Case IDOK
-					' Dim OpeningBalance As LongInt = Any
-					' Dim OverralLength As LongInt = Any
-					' Dim Annual As LongInt = Any
-					' Dim Interest As LongInt = Any
-					' Dim Tax As LongInt
+					SetDlgItemTextW( _
+						hwndDlg, _
+						IDC_EDT_ROOTX1, _
+						NULL _
+					)
+					SetDlgItemTextW( _
+						hwndDlg, _
+						IDC_EDT_ROOTX2, _
+						NULL _
+					)
 					
-					' Scope
-						' Dim szOpeningBalance(511) As TCHAR = Any
-						' GetDlgItemText( _
-							' hwndDlg, _
-							' IDC_EDT_OPENINGBALANCE, _
-							' @szOpeningBalance(0), _
-							' 511 _
-						' )
-						' StrToInt64Ex(@szOpeningBalance(0), STIF_DEFAULT, @Cast(LONGLONG, OpeningBalance))
-					' End Scope
+					Dim CoefficientA As Double = GetDlgItemDoubletW(hwndDlg, IDC_EDT_COEFFICIENTA)
 					
-					' Scope
-						' Dim szOverralLength(511) As TCHAR = Any
-						' GetDlgItemText( _
-							' hwndDlg, _
-							' IDC_EDT_OVERRALLENGTH, _
-							' @szOverralLength(0), _
-							' 511 _
-						' )
-						' StrToInt64Ex(@szOverralLength(0), STIF_DEFAULT, @Cast(LONGLONG, OverralLength))
-					' End Scope
-					
-					' Scope
-						' Dim szAnnual(511) As TCHAR = Any
-						' GetDlgItemText( _
-							' hwndDlg, _
-							' IDC_EDT_ANNUAL, _
-							' @szAnnual(0), _
-							' 511 _
-						' )
-						' StrToInt64Ex(@szAnnual(0), STIF_DEFAULT, @Cast(LONGLONG, Annual))
-					' End Scope
-					
-					' Scope
-						' Dim szInterest(511) As TCHAR = Any
-						' GetDlgItemText( _
-							' hwndDlg, _
-							' IDC_EDT_INTEREST, _
-							' @szInterest(0), _
-							' 511 _
-						' )
-						' StrToInt64Ex(@szInterest(0), STIF_DEFAULT, @Cast(LONGLONG, Interest))
-					' End Scope
-					
-					' Scope
-						' Dim szTax(511) As TCHAR = Any
-						' GetDlgItemText( _
-							' hwndDlg, _
-							' IDC_EDT_TAX, _
-							' @szTax(0), _
-							' 511 _
-						' )
-						' StrToInt64Ex(@szTax(0), STIF_DEFAULT, @Cast(LONGLONG, Tax))
-					' End Scope
-					
-					' If CInt(OverralLength) > 0 Then
-						' Dim pInterestTable As CompoundInterest Ptr = HeapAlloc( _
-							' GetProcessHeap(), _
-							' HEAP_NO_SERIALIZE, _
-							' SizeOf(CompoundInterest) * CInt(OverralLength) _
-						' )
-						' If pInterestTable <> NULL Then
-							' CalculatePrincipal( _
-								' pInterestTable, _
-								' CInt(OverralLength), _
-								' OpeningBalance, _
-								' Annual, _
-								' Interest, _
-								' Tax _
-							' )
+					If CoefficientA = 0.0 Then
+						Dim tszCoefficientAIsZero(1023) As TCHAR = Any
+						Dim ret As Long = LoadString( _
+							GetModuleHandle(NULL), _
+							IDS_COEFFICIENTAZERO, _
+							@tszCoefficientAIsZero(0), _
+							1023 _
+						)
+						tszCoefficientAIsZero(ret) = 0
+						MessageBox(hwndDlg, @tszCoefficientAIsZero(0), NULL, MB_OK Or MB_ICONERROR)
+					Else
+						Dim CoefficientB As Double = GetDlgItemDoubletW(hwndDlg, IDC_EDT_COEFFICIENTB)
+						Dim CoefficientC As Double = GetDlgItemDoubletW(hwndDlg, IDC_EDT_COEFFICIENTC)
+						
+						Dim D As Double = CoefficientB * CoefficientB - 4 * CoefficientA * CoefficientC
+						If D < 0.0 Then
+							Dim tszDiscriminantLessZero(1023) As TCHAR = Any
+							Dim ret As Long = LoadString( _
+								GetModuleHandle(NULL), _
+								IDS_DISCRIMINANTLESSZERO, _
+								@tszDiscriminantLessZero(0), _
+								1023 _
+							)
+							tszDiscriminantLessZero(ret) = 0
+							MessageBox(hwndDlg, @tszDiscriminantLessZero(0), NULL, MB_OK Or MB_ICONERROR)
+						Else
+							Dim X1 As Double = (-1.0 * CoefficientB + sqrt(D)) / (2.0 * CoefficientA)
+							Dim X2 As Double = (-1.0 * CoefficientB - sqrt(D)) / (2.0 * CoefficientA)
 							
-							' Dim Parameter As OutputDataDialogProcParameter Ptr = HeapAlloc( _
-								' GetProcessHeap(), _
-								' HEAP_NO_SERIALIZE, _
-								' SizeOf(OutputDataDialogProcParameter) * CInt(OverralLength) _
-							' )
-							' If Parameter <> NULL Then
-								' Parameter->pInterestTable = pInterestTable
-								' Parameter->OverralLength = CInt(OverralLength)
-								' Parameter->LocalHeap =  HeapCreate(HEAP_NO_SERIALIZE, 0, 0)
-								
-								' If Parameter->LocalHeap <> NULL Then
-									' Dim DialogBoxParamResult As INT_PTR = DialogBoxParam( _
-										' GetModuleHandle(NULL), _
-										' MAKEINTRESOURCE(IDD_DLG_OUTPUTDATA), _
-										' hwndDlg, _
-										' @OutputDataDialogProc, _
-										' Cast(LPARAM, Parameter) _
-									' )
-									' If DialogBoxParamResult = -1 Then
-										' DisplayError(GetLastError(), DIALOGBOXPARAM_ERRORSTRING)
-										' EndDialog(hwndDlg, 0)
-									' End If
-									
-									' HeapDestroy(Parameter->LocalHeap)
-								' End If
-								
-								' HeapFree( _
-									' GetProcessHeap(), _
-									' HEAP_NO_SERIALIZE, _
-									' Parameter _
-								' )
-							' End If
+							Dim bstrX1 As BSTR = Any
+							VarBstrFromR8(X1, 0, 0, @bstrX1)
 							
-							' HeapFree( _
-								' GetProcessHeap(), _
-								' HEAP_NO_SERIALIZE, _
-								' pInterestTable _
-							' )
-						' End If
-					' End If
+							Dim bstrX2 As BSTR = Any
+							VarBstrFromR8(X2, 0, 0, @bstrX2)
+							
+							If bstrX1 <> NULL Then
+								SetDlgItemTextW( _
+									hwndDlg, _
+									IDC_EDT_ROOTX1, _
+									bstrX1 _
+								)
+							End If
+							
+							If bstrX2 <> NULL Then
+								SetDlgItemTextW( _
+									hwndDlg, _
+									IDC_EDT_ROOTX2, _
+									bstrX2 _
+								)
+							End If
+							
+							SysFreeString(bstrX1)
+							SysFreeString(bstrX2)
+						End If
+					End If
 					
 				Case IDCANCEL
 					EndDialog(hwndDlg, 0)
