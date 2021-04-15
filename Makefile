@@ -233,10 +233,10 @@ OBJECTFILES_DEBUG_GUI_MODULES=      $(OBJ_DEBUG_DIR)\EntryPoint$(FILE_SUFFIX_GUI
 OBJECTFILES_RELEASE_CONSOLE_MODULES=$(OBJ_RELEASE_DIR)\EntryPoint$(FILE_SUFFIX_CONSOLE).o  
 OBJECTFILES_DEBUG_CONSOLE_MODULES=  $(OBJ_DEBUG_DIR)\EntryPoint$(FILE_SUFFIX_CONSOLE).o   
 
-OBJECTFILES_RELEASE_GUI_RESOURCES=    $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_GUI).obj
-OBJECTFILES_DEBUG_GUI_RESOURCES=  $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_GUI).obj
-OBJECTFILES_RELEASE_CONSOLE_RESOURCES=$(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_CONSOLE).obj
-OBJECTFILES_DEBUG_CONSOLE_RESOURCES=  $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_CONSOLE).obj
+OBJECTFILES_RELEASE_GUI_RESOURCES=    $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_BASE).obj
+OBJECTFILES_DEBUG_GUI_RESOURCES=  $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_BASE).obj
+OBJECTFILES_RELEASE_CONSOLE_RESOURCES=$(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_BASE).obj
+OBJECTFILES_DEBUG_CONSOLE_RESOURCES=  $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_BASE).obj
 
 OBJECTFILES_RELEASE_GUI_BASE=    $(OBJECTFILES_RELEASE_GUI_MODULES)     $(OBJECTFILES_RELEASE_GUI_RESOURCES)
 OBJECTFILES_DEBUG_GUI_BASE=      $(OBJECTFILES_DEBUG_GUI_MODULES)       $(OBJECTFILES_DEBUG_GUI_RESOURCES)
@@ -416,19 +416,10 @@ $(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c:   Forms\InputDataDialo
 
 
 
-$(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_GUI).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
+$(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_BASE).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
 	$(RESOURCE_COMPILER) /ni $(ResourceCompilerBitFlag) /o /fo Resources.obj Resources.RC
-	move /y Resources.obj $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_GUI).obj
+	move /y Resources.obj $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_BASE).obj
 
-$(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_GUI).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
+$(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_BASE).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
 	$(RESOURCE_COMPILER) /ni $(ResourceCompilerBitFlag) /o /fo Resources.obj Resources.RC
-	move /y Resources.obj $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_GUI).obj
-
-$(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_CONSOLE).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
-	$(RESOURCE_COMPILER) /ni $(ResourceCompilerBitFlag) /o /fo Resources.obj Resources.RC
-	move /y Resources.obj $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_CONSOLE).obj
-
-$(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_CONSOLE).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
-	$(RESOURCE_COMPILER) /ni $(ResourceCompilerBitFlag) /o /fo Resources.obj Resources.RC
-	move /y Resources.obj $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_CONSOLE).obj
-
+	move /y Resources.obj $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_BASE).obj
