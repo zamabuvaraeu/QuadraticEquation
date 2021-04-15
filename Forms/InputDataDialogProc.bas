@@ -1,9 +1,9 @@
 #include once "InputDataDialogProc.bi"
 #include once "win\ole2.bi"
 #include once "win\oleauto.bi"
+#include once "crt.bi"
 #include once "DisplayError.bi"
 #include once "Resources.RH"
-#include once "crt.bi"
 
 Const DIALOGBOXPARAM_ERRORSTRING = __TEXT("Failed to show OutputDataDialog")
 Const CONVERT_ERRORSTRING = __TEXT("Failed to convert String to Double")

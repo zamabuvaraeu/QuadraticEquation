@@ -359,11 +359,11 @@ $(OBJ_RELEASE_DIR)\WinMain$(FILE_SUFFIX_GUI).asm: $(OBJ_RELEASE_DIR)\WinMain$(FI
 $(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).asm:   $(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).c
 	$(GCC_COMPILER) $(GCC_COMPILER_PARAMETERS_DEBUG) $(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).c -o $(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).asm
 
-$(OBJ_RELEASE_DIR)\WinMain$(FILE_SUFFIX_GUI).c: Modules\WinMain.bas
+$(OBJ_RELEASE_DIR)\WinMain$(FILE_SUFFIX_GUI).c: Modules\WinMain.bas Forms\InputDataDialogProc.bi Resources.RH Modules\DisplayError.bi
 	$(FREEBASIC_COMPILER) $(FREEBASIC_PARAMETERS_RELEASE_GUI) "Modules\WinMain.bas"
 	move /y Modules\WinMain.c $(OBJ_RELEASE_DIR)\WinMain$(FILE_SUFFIX_GUI).c
 
-$(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).c:   Modules\WinMain.bas
+$(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).c:   Modules\WinMain.bas Forms\InputDataDialogProc.bi Resources.RH Modules\DisplayError.bi
 	$(FREEBASIC_COMPILER) $(FREEBASIC_PARAMETERS_DEBUG_GUI) "Modules\WinMain.bas"
 	move /y Modules\WinMain.c $(OBJ_DEBUG_DIR)\WinMain$(FILE_SUFFIX_GUI).c
 
@@ -381,11 +381,11 @@ $(OBJ_RELEASE_DIR)\DisplayError$(FILE_SUFFIX_GUI).asm: $(OBJ_RELEASE_DIR)\Displa
 $(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).asm:   $(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).c
 	$(GCC_COMPILER) $(GCC_COMPILER_PARAMETERS_DEBUG) $(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).c -o $(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).asm
 
-$(OBJ_RELEASE_DIR)\DisplayError$(FILE_SUFFIX_GUI).c: Modules\DisplayError.bas
+$(OBJ_RELEASE_DIR)\DisplayError$(FILE_SUFFIX_GUI).c: Modules\DisplayError.bas Modules\DisplayError.bi
 	$(FREEBASIC_COMPILER) $(FREEBASIC_PARAMETERS_RELEASE_GUI) "Modules\DisplayError.bas"
 	move /y Modules\DisplayError.c $(OBJ_RELEASE_DIR)\DisplayError$(FILE_SUFFIX_GUI).c
 
-$(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).c:   Modules\DisplayError.bas
+$(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).c:   Modules\DisplayError.bas Modules\DisplayError.bi
 	$(FREEBASIC_COMPILER) $(FREEBASIC_PARAMETERS_DEBUG_GUI) "Modules\DisplayError.bas"
 	move /y Modules\DisplayError.c $(OBJ_DEBUG_DIR)\DisplayError$(FILE_SUFFIX_GUI).c
 
@@ -403,11 +403,11 @@ $(OBJ_RELEASE_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).asm: $(OBJ_RELEASE_DIR)
 $(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).asm:   $(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c
 	$(GCC_COMPILER) $(GCC_COMPILER_PARAMETERS_DEBUG) $(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c -o $(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).asm
 
-$(OBJ_RELEASE_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c: Forms\InputDataDialogProc.bas
+$(OBJ_RELEASE_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c: Forms\InputDataDialogProc.bas Forms\InputDataDialogProc.bi Modules\DisplayError.bi Resources.RH
 	$(FREEBASIC_COMPILER) $(FREEBASIC_PARAMETERS_RELEASE_GUI) "Forms\InputDataDialogProc.bas"
 	move /y Forms\InputDataDialogProc.c $(OBJ_RELEASE_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c
 
-$(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c:   Forms\InputDataDialogProc.bas
+$(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c:   Forms\InputDataDialogProc.bas Forms\InputDataDialogProc.bi Modules\DisplayError.bi Resources.RH
 	$(FREEBASIC_COMPILER) $(FREEBASIC_PARAMETERS_DEBUG_GUI) "Forms\InputDataDialogProc.bas"
 	move /y Forms\InputDataDialogProc.c $(OBJ_DEBUG_DIR)\InputDataDialogProc$(FILE_SUFFIX_GUI).c
 
