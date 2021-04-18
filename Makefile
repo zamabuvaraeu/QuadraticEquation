@@ -421,5 +421,5 @@ $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_BASE).obj: Resources.RC Resources.RH Q
 	move /y Resources.obj $(OBJ_RELEASE_DIR)\Resources$(FILE_SUFFIX_BASE).obj
 
 $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_BASE).obj: Resources.RC Resources.RH QuadraticEquation.exe.manifest icon.ico
-	$(RESOURCE_COMPILER) /ni $(ResourceCompilerBitFlag) /o /fo Resources.obj Resources.RC
+	$(RESOURCE_COMPILER) /d DEBUG /ni $(ResourceCompilerBitFlag) /o /fo Resources.obj Resources.RC
 	move /y Resources.obj $(OBJ_DEBUG_DIR)\Resources$(FILE_SUFFIX_BASE).obj
