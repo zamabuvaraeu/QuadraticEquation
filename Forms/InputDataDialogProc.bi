@@ -3,6 +3,10 @@
 
 #include once "windows.bi"
 
+Type DialogData
+	Dim hToolTop As HWND
+End Type
+
 Declare Function InputDataDialogProc( _
 	ByVal hwndDlg As HWND, _
 	ByVal uMsg As UINT, _

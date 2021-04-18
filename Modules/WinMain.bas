@@ -41,12 +41,14 @@ Function wWinMain( _
 		End If
 	End Scope
 	
+	Dim Parameter As DialogData = Any
+	
 	Dim DialogBoxParamResult As INT_PTR = DialogBoxParam( _
 		hInst, _
 		MAKEINTRESOURCE(IDD_DLG_INPUTDATA), _
 		NULL, _
 		@InputDataDialogProc, _
-		Cast(LPARAM, 0) _
+		Cast(LPARAM, @Parameter) _
 	)
 	If DialogBoxParamResult = -1 Then
 		DisplayError(GetLastError(), DIALOGBOXPARAM_ERRORSTRING)
