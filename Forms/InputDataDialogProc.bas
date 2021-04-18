@@ -9,44 +9,44 @@
 Const DIALOGBOXPARAM_ERRORSTRING = __TEXT("Failed to show OutputDataDialog")
 Const CONVERT_ERRORSTRING = __TEXT("Failed to convert String to Double")
 
-Function CreateToolTip( _
-		ByVal hwndDlg As HWND, _
-		ByVal resID As ULONG, _
-		ByVal pszText As LPTSTR _
-	)As HWND
+' Function CreateToolTip( _
+		' ByVal hwndDlg As HWND, _
+		' ByVal resID As ULONG, _
+		' ByVal pszText As LPTSTR _
+	' )As HWND
 	
-	Dim hwndTool As HWND = GetDlgItem(hwndDlg, resID)
+	' Dim hwndTool As HWND = GetDlgItem(hwndDlg, resID)
 	
-	Dim hwndTip As HWND = CreateWindowEx( _
-		WS_EX_TOOLWINDOW, _
-		TOOLTIPS_CLASS, _
-		NULL, _
-		WS_POPUP Or TTS_ALWAYSTIP Or TTS_BALLOON, _
-		CW_USEDEFAULT, CW_USEDEFAULT, _
-		CW_USEDEFAULT, CW_USEDEFAULT, _
-		hwndDlg, _
-		NULL, _
-		GetModuleHandle(0), _
-		NULL _
-	)
-    If hwndTip = NULL Then
-		Return NULL
-	End If
+	' Dim hwndTip As HWND = CreateWindowEx( _
+		' WS_EX_TOOLWINDOW, _
+		' TOOLTIPS_CLASS, _
+		' NULL, _
+		' WS_POPUP Or TTS_ALWAYSTIP Or TTS_BALLOON, _
+		' CW_USEDEFAULT, CW_USEDEFAULT, _
+		' CW_USEDEFAULT, CW_USEDEFAULT, _
+		' hwndDlg, _
+		' NULL, _
+		' GetModuleHandle(0), _
+		' NULL _
+	' )
+    ' If hwndTip = NULL Then
+		' Return NULL
+	' End If
 	
-	Dim tInfo As TOOLINFO = Any
-	ZeroMemory(@tInfo, SizeOf(TOOLINFO))
+	' Dim tInfo As TOOLINFO = Any
+	' ZeroMemory(@tInfo, SizeOf(TOOLINFO))
 	
-	tInfo.cbSize = SizeOf(TOOLINFO)
-	tInfo.hwnd = hwndDlg
-	tInfo.uFlags = TTF_IDISHWND Or TTF_SUBCLASS
-	tInfo.uId = Cast(UINT_PTR, hwndTool)
-	tInfo.lpszText = pszText
+	' tInfo.cbSize = SizeOf(TOOLINFO)
+	' tInfo.hwnd = hwndDlg
+	' tInfo.uFlags = TTF_IDISHWND Or TTF_SUBCLASS
+	' tInfo.uId = Cast(UINT_PTR, hwndTool)
+	' tInfo.lpszText = pszText
 	
-	SendMessage(hwndTip, TTM_ADDTOOL, 0, CPtr(LPARAM, @tInfo))
+	' SendMessage(hwndTip, TTM_ADDTOOL, 0, CPtr(LPARAM, @tInfo))
 	
-	Return hwndTip
+	' Return hwndTip
 	
-End Function
+' End Function
 
 Sub ProcessErrorDouble( _
 		ByVal hwndDlg As HWND, _
