@@ -7,6 +7,12 @@
 #include once "DisplayError.bi"
 #include once "Resources.RH"
 
+Const TCHARFIXEDVECTOR_CAPACITY As Integer = 1023
+
+Type TCharFixedVector
+	Buffer(TCHARFIXEDVECTOR_CAPACITY - 1) As TCHAR
+End Type
+
 Sub ProcessErrorDouble( _
 		ByVal hwndDlg As HWND, _
 		ByVal ControlID As ULONG, _
@@ -42,42 +48,42 @@ Sub ProcessErrorDouble( _
 			
 	End Select
 	
-	Dim tszTitle(1023) As TCHAR = Any
+	Dim tszTitle As TCharFixedVector = Any
 	Dim ret2 As Long = LoadString( _
 		GetModuleHandle(NULL), _
 		TitleResourceId, _
-		@tszTitle(0), _
-		1023 _
+		@tszTitle.Buffer(0), _
+		TCHARFIXEDVECTOR_CAPACITY _
 	)
-	tszTitle(ret2) = 0
+	tszTitle.Buffer(ret2) = 0
 	
-	Dim tszErrorText(1023) As TCHAR = Any
+	Dim tszErrorText As TCharFixedVector = Any
 	Dim ret1 As Long = LoadString( _
 		GetModuleHandle(NULL), _
 		ResourceId, _
-		@tszErrorText(0), _
-		1023 _
+		@tszErrorText.Buffer(0), _
+		TCHARFIXEDVECTOR_CAPACITY _
 	)
-	tszErrorText(ret1) = 0
+	tszErrorText.Buffer(ret1) = 0
 	
 	If hr = DISP_E_TYPEMISMATCH Then
-		Dim tszDecimalSeparator(1023) As TCHAR = Any
+		Dim tszDecimalSeparator As TCharFixedVector = Any
 		GetLocaleInfo( _
 			0, _
 			LOCALE_SDECIMAL, _
-			@tszDecimalSeparator(0), _
-			1023 _
+			@tszDecimalSeparator.Buffer(0), _
+			TCHARFIXEDVECTOR_CAPACITY _
 		)
 		lstrcat( _
-			@tszErrorText(0), _
-			@tszDecimalSeparator(0) _
+			@tszErrorText.Buffer(0), _
+			@tszDecimalSeparator.Buffer(0) _
 		)
 	End If
 	
 	Dim tInfo As EDITBALLOONTIP = Any
 	tInfo.cbStruct = SizeOf(EDITBALLOONTIP)
-	tInfo.pszTitle = @tszTitle(0)
-	tInfo.pszText = @tszErrorText(0)
+	tInfo.pszTitle = @tszTitle.Buffer(0)
+	tInfo.pszText = @tszErrorText.Buffer(0)
 	tInfo.ttiIcon = TTI_ERROR
 	
 	Dim hwndTool As HWND = GetDlgItem(hwndDlg, ControlID)
@@ -195,28 +201,28 @@ Function InputDataDialogProc( _
 								If SUCCEEDED(hrCoefficientC) Then
 									Dim D As Double = CoefficientB * CoefficientB - 4 * CoefficientA * CoefficientC
 									If D < 0.0 Then
-										Dim tszDiscriminantLessZero(1023) As TCHAR = Any
+										Dim tszDiscriminantLessZero As TCharFixedVector = Any
 										Dim ret1 As Long = LoadString( _
 											GetModuleHandle(NULL), _
 											IDS_DISCRIMINANTLESSZEROTEXT, _
-											@tszDiscriminantLessZero(0), _
-											1023 _
+											@tszDiscriminantLessZero.Buffer(0), _
+											TCHARFIXEDVECTOR_CAPACITY _
 										)
-										tszDiscriminantLessZero(ret1) = 0
+										tszDiscriminantLessZero.Buffer(ret1) = 0
 										
-										Dim tszTitle(1023) As TCHAR = Any
+										Dim tszTitle As TCharFixedVector = Any
 										Dim ret2 As Long = LoadString( _
 											GetModuleHandle(NULL), _
 											IDS_DISCRIMINANTLESSZEROTITLE, _
-											@tszTitle(0), _
-											1023 _
+											@tszTitle.Buffer(0), _
+											TCHARFIXEDVECTOR_CAPACITY _
 										)
-										tszTitle(ret2) = 0
+										tszTitle.Buffer(ret2) = 0
 										
 										MessageBox( _
 											hwndDlg, _
-											@tszDiscriminantLessZero(0), _
-											@tszTitle(0), _
+											@tszDiscriminantLessZero.Buffer(0), _
+											@tszTitle.Buffer(0), _
 											MB_OK Or MB_ICONERROR _
 										)
 									Else

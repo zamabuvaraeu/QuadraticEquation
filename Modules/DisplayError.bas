@@ -1,15 +1,25 @@
 #include once "DisplayError.bi"
 
+Const WCHARFIXEDVECTOR_CAPACITY As Integer = 512
+
+Type WCharFixedVector
+	Buffer(WCHARFIXEDVECTOR_CAPACITY - 1) As WCHAR
+End Type
+
+Type CharFixedVector
+	Buffer(WCHARFIXEDVECTOR_CAPACITY - 1) As CHAR
+End Type
+
 #ifdef UNICODE
 Sub DisplayErrorW Alias "DisplayErrorW"( _
 		ByVal dwErrorCode As DWORD, _
 		ByVal Caption As LPCWSTR _
 	)
 	
-	Dim Buffer(511) As WCHAR = Any
-	_itow(dwErrorCode, @Buffer(0), 10)
+	Dim Buffer As WCharFixedVector = Any
+	_itow(dwErrorCode, @Buffer.Buffer(0), 10)
 	
-	MessageBoxW(0, @Buffer(0), Caption, MB_ICONERROR)
+	MessageBoxW(0, @Buffer.Buffer(0), Caption, MB_ICONERROR)
 	
 End Sub
 #endif
@@ -20,10 +30,10 @@ Sub DisplayErrorA Alias "DisplayErrorA"( _
 		ByVal Caption As LPCSTR _
 	)
 	
-	Dim Buffer(511) As CHAR = Any
-	_itoa(dwErrorCode, @Buffer(0), 10)
+	Dim Buffer As CharFixedVector = Any
+	_itoa(dwErrorCode, @Buffer.Buffer(0), 10)
 	
-	MessageBoxA(0, @Buffer(0), Caption, MB_ICONERROR)
+	MessageBoxA(0, @Buffer.Buffer(0), Caption, MB_ICONERROR)
 	
 End Sub
 #endif
@@ -34,10 +44,10 @@ Sub DisplayHresultW Alias "DisplayHresultW"( _
 		ByVal Caption As LPCWSTR _
 	)
 	
-	Dim Buffer(511) As WCHAR = Any
-	_itow(dwErrorCode, @Buffer(0), 16)
+	Dim Buffer As WCharFixedVector = Any
+	_itow(dwErrorCode, @Buffer.Buffer(0), 10)
 	
-	MessageBoxW(0, @Buffer(0), Caption, MB_ICONERROR)
+	MessageBoxW(0, @Buffer.Buffer(0), Caption, MB_ICONERROR)
 	
 End Sub
 #endif
@@ -48,10 +58,10 @@ Sub DisplayHresultA Alias "DisplayHresultA"( _
 		ByVal Caption As LPCSTR _
 	)
 	
-	Dim Buffer(511) As CHAR = Any
-	_itoa(dwErrorCode, @Buffer(0), 16)
+	Dim Buffer As CharFixedVector = Any
+	_itoa(dwErrorCode, @Buffer.Buffer(0), 10)
 	
-	MessageBoxA(0, @Buffer(0), Caption, MB_ICONERROR)
+	MessageBoxA(0, @Buffer.Buffer(0), Caption, MB_ICONERROR)
 	
 End Sub
 #endif

@@ -1,11 +1,5 @@
 #include once "windows.bi"
-
-Declare Function wWinMain( _
-	Byval hInst As HINSTANCE, _
-	ByVal hPrevInstance As HINSTANCE, _
-	ByVal lpCmdLine As LPWSTR, _
-	ByVal iCmdShow As Long _
-)As Long
+#include once "WinMain.bi"
 
 #ifdef WITHOUT_RUNTIME
 Sub EntryPoint()
@@ -13,7 +7,7 @@ Sub EntryPoint()
 Function main Alias "main"()As Long
 #endif
 	
-	Dim RetCode As Long = wWinMain( _
+	Dim RetCode As Long = tWinMain( _
 		GetModuleHandle(0), _
 		NULL, _
 		GetCommandLineW(), _

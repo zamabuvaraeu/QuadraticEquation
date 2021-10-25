@@ -1,4 +1,4 @@
-#include once "windows.bi"
+#include once "WinMain.bi"
 #include once "win\commctrl.bi"
 #include once "InputDataDialogProc.bi"
 #include once "Resources.RH"
@@ -7,7 +7,7 @@
 Const COMMONCONTROLS_ERRORSTRING = __TEXT("Failed to register Common Controls")
 Const DIALOGBOXPARAM_ERRORSTRING = __TEXT("Failed to show InputDataDialog")
 
-Function wWinMain( _
+Function wWinMain Alias "wWinMain"( _
 		Byval hInst As HINSTANCE, _
 		ByVal hPrevInstance As HINSTANCE, _
 		ByVal lpCmdLine As LPWSTR, _
