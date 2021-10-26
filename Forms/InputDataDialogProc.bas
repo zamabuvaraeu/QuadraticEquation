@@ -6,6 +6,7 @@
 #include once "crt\limits.bi"
 #include once "DisplayError.bi"
 #include once "Resources.RH"
+#include once "QuadraticEquation.bi"
 
 Const TCHARFIXEDVECTOR_CAPACITY As Integer = 1023
 
@@ -48,9 +49,11 @@ Sub ProcessErrorDouble( _
 			
 	End Select
 	
+	Dim ModuleHandle As HMODULE = GetModuleHandle(NULL)
+	
 	Dim tszTitle As TCharFixedVector = Any
 	Dim ret2 As Long = LoadString( _
-		GetModuleHandle(NULL), _
+		ModuleHandle, _
 		TitleResourceId, _
 		@tszTitle.Buffer(0), _
 		TCHARFIXEDVECTOR_CAPACITY _
@@ -59,7 +62,7 @@ Sub ProcessErrorDouble( _
 	
 	Dim tszErrorText As TCharFixedVector = Any
 	Dim ret1 As Long = LoadString( _
-		GetModuleHandle(NULL), _
+		ModuleHandle, _
 		ResourceId, _
 		@tszErrorText.Buffer(0), _
 		TCHARFIXEDVECTOR_CAPACITY _
@@ -125,15 +128,30 @@ End Function
 Function SetDlgItemDouble( _
 		ByVal hwndDlg As HWND, _
 		ByVal ControlID As ULONG, _
-		ByVal Value As Double _
+		ByVal Value As Double, _
+		ByVal IsComplex As Boolean _
 	)As HRESULT
 	
-	Dim bstrText As BSTR = Any
+	Dim bstrValue As BSTR = Any
 	
-	Dim hr As HRESULT = VarBstrFromR8(Value, 0, 0, @bstrText)
+	Dim hr As HRESULT = VarBstrFromR8(Value, 0, 0, @bstrValue)
 	If FAILED(hr) Then
 		Return hr
 	End If
+	
+	Dim bstrImaginaryUnitSuffix As BSTR = Any
+	If IsComplex Then
+		bstrImaginaryUnitSuffix = SysAllocString(WStr(" * i"))
+	Else
+		bstrImaginaryUnitSuffix = NULL
+	End If
+	
+	Dim bstrText As BSTR = Any
+	VarBstrCat( _
+		bstrValue, _
+		bstrImaginaryUnitSuffix, _
+		@bstrText _
+	)
 	
 	SetDlgItemTextW( _
 		hwndDlg, _
@@ -142,6 +160,8 @@ Function SetDlgItemDouble( _
 	)
 	
 	SysFreeString(bstrText)
+	SysFreeString(bstrImaginaryUnitSuffix)
+	SysFreeString(bstrValue)
 	
 	Return S_OK
 	
@@ -161,20 +181,22 @@ Function InputDataDialogProc( _
 			Dim hIcon As HICON = LoadIcon(hInst, CPtr(LPCTSTR, IDI_MAIN))
 			SendMessage(hwndDlg, WM_SETICON, ICON_BIG, Cast(LPARAM, hIcon))
 			
-			SendMessage(GetDlgItem(hwndDlg, IDC_UPD_COEFFICIENTA), UDM_SETRANGE32, INT_MIN, Cast(LPARAM, INT_MAX))
-			SendMessage(GetDlgItem(hwndDlg, IDC_UPD_COEFFICIENTA), UDM_SETPOS32, 0, Cast(LPARAM, 4))
+			SendDlgItemMessage(hwndDlg, IDC_UPD_COEFFICIENTA, UDM_SETRANGE32, INT_MIN, Cast(LPARAM, INT_MAX))
+			SendDlgItemMessage(hwndDlg, IDC_UPD_COEFFICIENTA, UDM_SETPOS32, 0, Cast(LPARAM, 4))
 			
-			SendMessage(GetDlgItem(hwndDlg, IDC_UPD_COEFFICIENTB), UDM_SETRANGE32, INT_MIN, Cast(LPARAM, INT_MAX))
-			SendMessage(GetDlgItem(hwndDlg, IDC_UPD_COEFFICIENTB), UDM_SETPOS32, 0, Cast(LPARAM, -7))
+			SendDlgItemMessage(hwndDlg, IDC_UPD_COEFFICIENTB, UDM_SETRANGE32, INT_MIN, Cast(LPARAM, INT_MAX))
+			SendDlgItemMessage(hwndDlg, IDC_UPD_COEFFICIENTB, UDM_SETPOS32, 0, Cast(LPARAM, -7))
 			
-			SendMessage(GetDlgItem(hwndDlg, IDC_UPD_COEFFICIENTC), UDM_SETRANGE32, INT_MIN, Cast(LPARAM, INT_MAX))
-			SendMessage(GetDlgItem(hwndDlg, IDC_UPD_COEFFICIENTC), UDM_SETPOS32, 0, Cast(LPARAM, -2))
+			SendDlgItemMessage(hwndDlg, IDC_UPD_COEFFICIENTC, UDM_SETRANGE32, INT_MIN, Cast(LPARAM, INT_MAX))
+			SendDlgItemMessage(hwndDlg, IDC_UPD_COEFFICIENTC, UDM_SETPOS32, 0, Cast(LPARAM, -2))
 			
-			SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX1, 2.0)
-			SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX2, -0.25)
+			SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX1, 2.0, False)
+			SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX2, -0.25, False)
 			
 		Case WM_COMMAND
-			Select Case LOWORD(wParam)
+			Dim ControlID As ULONG = LOWORD(wParam)
+			
+			Select Case ControlID
 				
 				Case IDOK
 					Dim CoefficientA As Double = Any
@@ -184,54 +206,57 @@ Function InputDataDialogProc( _
 						@CoefficientA _
 					)
 					IF SUCCEEDED(hrCoefficientA) Then
-						If CoefficientA <> 0.0 Then
-							Dim CoefficientB As Double = Any
-							Dim hrCoefficientB As HRESULT = GetDlgItemDouble( _
+						Dim CoefficientB As Double = Any
+						Dim hrCoefficientB As HRESULT = GetDlgItemDouble( _
+							hwndDlg, _
+							IDC_EDT_COEFFICIENTB, _
+							@CoefficientB _
+						)
+						If SUCCEEDED(hrCoefficientB) Then
+							Dim CoefficientC As Double = Any
+							Dim hrCoefficientC As HRESULT = GetDlgItemDouble( _
 								hwndDlg, _
-								IDC_EDT_COEFFICIENTB, _
-								@CoefficientB _
+								IDC_EDT_COEFFICIENTC, _
+								@CoefficientC _
 							)
-							If SUCCEEDED(hrCoefficientB) Then
-								Dim CoefficientC As Double = Any
-								Dim hrCoefficientC As HRESULT = GetDlgItemDouble( _
-									hwndDlg, _
-									IDC_EDT_COEFFICIENTC, _
-									@CoefficientC _
+							If SUCCEEDED(hrCoefficientC) Then
+								Dim Roots As Root2D = Any
+								Dim Status As QuadraticEquationStatus = SolveQuadraticEquation( _
+									CoefficientA, _
+									CoefficientB, _
+									CoefficientC, _
+									@Roots _
 								)
-								If SUCCEEDED(hrCoefficientC) Then
-									Dim D As Double = CoefficientB * CoefficientB - 4 * CoefficientA * CoefficientC
-									If D < 0.0 Then
-										Dim tszDiscriminantLessZero As TCharFixedVector = Any
-										Dim ret1 As Long = LoadString( _
-											GetModuleHandle(NULL), _
-											IDS_DISCRIMINANTLESSZEROTEXT, _
-											@tszDiscriminantLessZero.Buffer(0), _
-											TCHARFIXEDVECTOR_CAPACITY _
-										)
-										tszDiscriminantLessZero.Buffer(ret1) = 0
-										
-										Dim tszTitle As TCharFixedVector = Any
-										Dim ret2 As Long = LoadString( _
-											GetModuleHandle(NULL), _
-											IDS_DISCRIMINANTLESSZEROTITLE, _
-											@tszTitle.Buffer(0), _
-											TCHARFIXEDVECTOR_CAPACITY _
-										)
-										tszTitle.Buffer(ret2) = 0
-										
-										MessageBox( _
-											hwndDlg, _
-											@tszDiscriminantLessZero.Buffer(0), _
-											@tszTitle.Buffer(0), _
-											MB_OK Or MB_ICONERROR _
-										)
-									Else
-										Dim X1 As Double = (-1.0 * CoefficientB + sqrt(D)) / (2.0 * CoefficientA)
-										Dim X2 As Double = (-1.0 * CoefficientB - sqrt(D)) / (2.0 * CoefficientA)
-										
-										SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX1, X1)
-										SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX2, X2)
-									End If
+								If Status = QuadraticEquationStatus.NoSolution Then
+									' Dim tszDiscriminantLessZero As TCharFixedVector = Any
+									' Dim ret1 As Long = LoadString( _
+										' GetModuleHandle(NULL), _
+										' IDS_DISCRIMINANTLESSZEROTEXT, _
+										' @tszDiscriminantLessZero.Buffer(0), _
+										' TCHARFIXEDVECTOR_CAPACITY _
+									' )
+									' tszDiscriminantLessZero.Buffer(ret1) = 0
+									
+									' Dim tszTitle As TCharFixedVector = Any
+									' Dim ret2 As Long = LoadString( _
+										' GetModuleHandle(NULL), _
+										' IDS_DISCRIMINANTLESSZEROTITLE, _
+										' @tszTitle.Buffer(0), _
+										' TCHARFIXEDVECTOR_CAPACITY _
+									' )
+									' tszTitle.Buffer(ret2) = 0
+									
+									' MessageBox( _
+										' hwndDlg, _
+										' @tszDiscriminantLessZero.Buffer(0), _
+										' @tszTitle.Buffer(0), _
+										' MB_OK Or MB_ICONERROR _
+									' )
+								Else
+									Dim IsComplex As Boolean = (Status = QuadraticEquationStatus.ComplexRoots)
+
+									SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX1, Roots.X1, IsComplex)
+									SetDlgItemDouble(hwndDlg, IDC_EDT_ROOTX2, Roots.X2, IsComplex)
 								End If
 							End If
 						End If
@@ -240,70 +265,32 @@ Function InputDataDialogProc( _
 				Case IDCANCEL
 					EndDialog(hwndDlg, 0)
 					
-				Case IDC_EDT_COEFFICIENTA
-					Select Case HIWORD(wParam)
+				Case IDC_EDT_COEFFICIENTA, IDC_EDT_COEFFICIENTB, IDC_EDT_COEFFICIENTC
+					Dim EventID As ULONG = HIWORD(wParam)
+					
+					Select Case EventID
 						
 						Case EN_KILLFOCUS
-							Dim CoefficientA As Double = Any
-							Dim hrCoefficientA As HRESULT = GetDlgItemDouble( _
+							Dim Coefficient As Double = Any
+							Dim hrCoefficient As HRESULT = GetDlgItemDouble( _
 								hwndDlg, _
-								IDC_EDT_COEFFICIENTA, _
-								@CoefficientA _
+								ControlID, _
+								@Coefficient _
 							)
-							IF FAILED(hrCoefficientA) Then
+							IF FAILED(hrCoefficient) Then
 								ProcessErrorDouble( _
 									hwndDlg, _
-									IDC_EDT_COEFFICIENTA, _
-									hrCoefficientA _
+									ControlID, _
+									hrCoefficient _
 								)
 							Else
-								If CoefficientA = 0.0 Then
+								If Coefficient = 0.0 AndAlso ControlID = IDC_EDT_COEFFICIENTA Then
 									ProcessErrorDouble( _
 										hwndDlg, _
 										IDC_EDT_COEFFICIENTA, _
 										E_INVALIDARG _
 									)
 								End If
-							End If
-							
-					End Select
-					
-				Case IDC_EDT_COEFFICIENTB
-					Select Case HIWORD(wParam)
-						
-						Case EN_KILLFOCUS
-							Dim CoefficientB As Double = Any
-							Dim hrCoefficientB As HRESULT = GetDlgItemDouble( _
-								hwndDlg, _
-								IDC_EDT_COEFFICIENTB, _
-								@CoefficientB _
-							)
-							IF FAILED(hrCoefficientB) Then
-								ProcessErrorDouble( _
-									hwndDlg, _
-									IDC_EDT_COEFFICIENTB, _
-									hrCoefficientB _
-								)
-							End If
-							
-					End Select
-					
-				Case IDC_EDT_COEFFICIENTC
-					Select Case HIWORD(wParam)
-						
-						Case EN_KILLFOCUS
-							Dim CoefficientC As Double = Any
-							Dim hrCoefficientC As HRESULT = GetDlgItemDouble( _
-								hwndDlg, _
-								IDC_EDT_COEFFICIENTC, _
-								@CoefficientC _
-							)
-							IF FAILED(hrCoefficientC) Then
-								ProcessErrorDouble( _
-									hwndDlg, _
-									IDC_EDT_COEFFICIENTC, _
-									hrCoefficientC _
-								)
 							End If
 							
 					End Select
