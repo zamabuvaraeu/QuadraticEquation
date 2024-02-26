@@ -510,7 +510,7 @@ Private Function InputDataDialogProc( _
 						Case IDOK
 							IDOK_OnClick(pParam, hWin)
 							
-					Case IDCANCEL
+						Case IDCANCEL
 							IDCANCEL_OnClick(pParam, hWin)
 							
 					End Select
