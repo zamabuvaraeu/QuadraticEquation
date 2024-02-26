@@ -361,72 +361,99 @@ Private Sub DialogMain_OnLoad( _
 	
 End Sub
 
+Private Function CheckValue( _
+		ByVal hWin As HWND, _
+		ByVal ControlId As WORD _
+	)As HRESULT
+	
+	Dim Coefficient As Double = Any
+	Dim hrCoefficient As HRESULT = GetDlgItemDouble( _
+		hWin, _
+		ControlId, _
+		@Coefficient _
+	)
+	IF FAILED(hrCoefficient) Then
+		ProcessErrorDouble( _
+			hWin, _
+			ControlId, _
+			hrCoefficient _
+		)
+		Return E_FAIL
+	End If
+	
+	If Coefficient = 0.0 AndAlso ControlId = IDC_EDT_COEFFICIENTA Then
+		ProcessErrorDouble( _
+			hWin, _
+			IDC_EDT_COEFFICIENTA, _
+			E_INVALIDARG _
+		)
+		Return E_FAIL
+	End If
+	
+	Return S_OK
+	
+End Function
+
 Private Sub IDOK_OnClick( _
 		ByVal this As DialogData Ptr, _
 		ByVal hWin As HWND _
 	)
 	
+	Scope
+		Dim hrCheck As HRESULT = CheckValue(hWin, IDC_EDT_COEFFICIENTA)
+		If FAILED(hrCheck) Then
+			Exit Sub
+		End If
+	End Scope
+	
+	Scope
+		Dim hrCheck As HRESULT = CheckValue(hWin, IDC_EDT_COEFFICIENTB)
+		If FAILED(hrCheck) Then
+			Exit Sub
+		End If
+	End Scope
+	
+	Scope
+		Dim hrCheck As HRESULT = CheckValue(hWin, IDC_EDT_COEFFICIENTC)
+		If FAILED(hrCheck) Then
+			Exit Sub
+		End If
+	End Scope
+	
 	Dim CoefficientA As Double = Any
-	Dim hrCoefficientA As HRESULT = GetDlgItemDouble( _
+	GetDlgItemDouble( _
 		hWin, _
 		IDC_EDT_COEFFICIENTA, _
 		@CoefficientA _
 	)
-	IF SUCCEEDED(hrCoefficientA) Then
-		Dim CoefficientB As Double = Any
-		Dim hrCoefficientB As HRESULT = GetDlgItemDouble( _
-			hWin, _
-			IDC_EDT_COEFFICIENTB, _
-			@CoefficientB _
-		)
-		If SUCCEEDED(hrCoefficientB) Then
-			Dim CoefficientC As Double = Any
-			Dim hrCoefficientC As HRESULT = GetDlgItemDouble( _
-				hWin, _
-				IDC_EDT_COEFFICIENTC, _
-				@CoefficientC _
-			)
-			If SUCCEEDED(hrCoefficientC) Then
-				Dim Roots As Root2D = Any
-				Dim Status As QuadraticEquationStatus = SolveQuadraticEquation( _
-					CoefficientA, _
-					CoefficientB, _
-					CoefficientC, _
-					@Roots _
-				)
-				If Status = QuadraticEquationStatus.NoSolution Then
-					' Dim tszDiscriminantLessZero As TCharFixedVector = Any
-					' Dim ret1 As Long = LoadString( _
-						' GetModuleHandle(NULL), _
-						' IDS_DISCRIMINANTLESSZEROTEXT, _
-						' @tszDiscriminantLessZero.Buffer(0), _
-						' TCHARFIXEDVECTOR_CAPACITY _
-					' )
-					' tszDiscriminantLessZero.Buffer(ret1) = 0
-					
-					' Dim tszTitle As TCharFixedVector = Any
-					' Dim ret2 As Long = LoadString( _
-						' GetModuleHandle(NULL), _
-						' IDS_DISCRIMINANTLESSZEROTITLE, _
-						' @tszTitle.Buffer(0), _
-						' TCHARFIXEDVECTOR_CAPACITY _
-					' )
-					' tszTitle.Buffer(ret2) = 0
-					
-					' MessageBox( _
-						' hWin, _
-						' @tszDiscriminantLessZero.Buffer(0), _
-						' @tszTitle.Buffer(0), _
-						' MB_OK Or MB_ICONERROR _
-					' )
-				Else
-					Dim IsComplex As Boolean = (Status = QuadraticEquationStatus.ComplexRoots)
-
-					SetDlgItemDouble(hWin, IDC_EDT_ROOTX1, Roots.X1, IsComplex)
-					SetDlgItemDouble(hWin, IDC_EDT_ROOTX2, Roots.X2, IsComplex)
-				End If
-			End If
-		End If
+	
+	Dim CoefficientB As Double = Any
+	GetDlgItemDouble( _
+		hWin, _
+		IDC_EDT_COEFFICIENTB, _
+		@CoefficientB _
+	)
+	
+	Dim CoefficientC As Double = Any
+	GetDlgItemDouble( _
+		hWin, _
+		IDC_EDT_COEFFICIENTC, _
+		@CoefficientC _
+	)
+	
+	Dim Roots As Root2D = Any
+	Dim Status As QuadraticEquationStatus = SolveQuadraticEquation( _
+		CoefficientA, _
+		CoefficientB, _
+		CoefficientC, _
+		@Roots _
+	)
+	
+	If Status <> QuadraticEquationStatus.NoSolution Then
+		Dim IsComplex As Boolean = (Status = QuadraticEquationStatus.ComplexRoots)
+		
+		SetDlgItemDouble(hWin, IDC_EDT_ROOTX1, Roots.X1, IsComplex)
+		SetDlgItemDouble(hWin, IDC_EDT_ROOTX2, Roots.X2, IsComplex)
 	End If
 	
 End Sub
@@ -446,36 +473,6 @@ Private Sub DialogMain_OnUnload( _
 	)
 	
 	EndDialog(hWin, IDCANCEL)
-	
-End Sub
-
-Private Sub Control_OnKillFocus( _
-		ByVal this As DialogData Ptr, _
-		ByVal hWin As HWND, _
-		ByVal ControlId As WORD _
-	)
-	
-	Dim Coefficient As Double = Any
-	Dim hrCoefficient As HRESULT = GetDlgItemDouble( _
-		hWin, _
-		ControlId, _
-		@Coefficient _
-	)
-	IF FAILED(hrCoefficient) Then
-		ProcessErrorDouble( _
-			hWin, _
-			ControlId, _
-			hrCoefficient _
-		)
-	Else
-		If Coefficient = 0.0 AndAlso ControlId = IDC_EDT_COEFFICIENTA Then
-			ProcessErrorDouble( _
-				hWin, _
-				IDC_EDT_COEFFICIENTA, _
-				E_INVALIDARG _
-			)
-		End If
-	End If
 	
 End Sub
 
@@ -518,14 +515,6 @@ Private Function InputDataDialogProc( _
 							
 					End Select
 					
-				Case EN_KILLFOCUS
-					
-					Select Case ControlId
-						
-						Case IDC_EDT_COEFFICIENTA, IDC_EDT_COEFFICIENTB, IDC_EDT_COEFFICIENTC
-							Control_OnKillFocus(pParam, hWin, ControlId)
-							
-					End Select
 			End Select
 			
 		Case WM_CLOSE
