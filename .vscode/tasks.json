@@ -1,0 +1,52 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Create Makefile",
+			"type": "process",
+			"command": "cscript.exe",
+			"args": [
+				"//nologo",
+				"C:\\Programming\\FreeBASIC Projects\\ProgrammingStyle\\CreateMakefile\\CreateMakefile.vbs",
+				"/out:QuadraticEquation",
+				"/unicode:true",
+				"/wrt:true",
+				"/addressaware:true",
+				"/makefile:Makefile",
+				"/fbc:fbc64",
+				"/fbc-path:C:\\Program Files (x86)\\FreeBASIC-1.10.0-winlibs-gcc-9.3.0",
+				"/src:src",
+				"/module:QuadraticEquation",
+				"/exetype:exe",
+				"/subsystem:windows",
+				"/emitter:gcc",
+				"/fix:true",
+				"/multithreading:false",
+				"/pedantic:false"
+				
+			],
+			"problemMatcher": [],
+			"group": {
+				"kind":"build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "Build project",
+			"type": "process",
+			"command": "R:\\Programming\\FreeBASIC-1.09.0-win64-gcc-9.3.0\\fbc64.exe",
+			"args": [
+				"-m src\\Station922",
+				"-x Station922.exe",
+				"-gen gcc -O 3 -Wc -ffunction-sections,-fdata-sections -Wl --gc-sections",
+				"src\\*.bas",
+				"src\\*.RC"
+			],
+			"problemMatcher": [],
+			"group": {
+				"kind": "none",
+				"isDefault": true
+			}
+		}
+	]
+}

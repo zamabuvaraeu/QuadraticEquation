@@ -1,0 +1,10 @@
+*.o
+*.a
+*.cmd
+*.exe
+*.dll
+*.so
+/bin/*
+/obj/*
+/tmp/*
+/_trunk_old/*
